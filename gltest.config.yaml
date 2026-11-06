@@ -1,0 +1,10 @@
+networks:
+  default: studionet
+  studionet:
+    from: ${GENLAYER_DEV_KEY}
+
+paths:
+  contracts: contracts
+  artifacts: artifacts
+
+environment: .env.studionet

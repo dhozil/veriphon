@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #05070d;
+  color: #f8fafc;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.45);
+}
+
+* {
+  scrollbar-width: thin;
+}
+
+.hero-bg {
+  background-image:
+    radial-gradient(1200px 600px at 15% 10%, rgba(99,102,241,0.35), transparent 55%),
+    radial-gradient(1000px 500px at 85% 15%, rgba(34,211,238,0.22), transparent 50%),
+    radial-gradient(900px 600px at 50% 90%, rgba(168,85,247,0.20), transparent 55%),
+    linear-gradient(180deg, #05070d 0%, #0a0f1f 50%, #05070d 100%);
+}
+
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg,#818cf8,#22d3ee,#a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-animated {
+  background: linear-gradient(90deg,#818cf8,#22d3ee,#a78bfa,#818cf8);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientShift 4s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes floatSlow {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes floatSlow2 {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(10px); }
+}
+
+@keyframes pulseGlow {
+  0%,100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.float-slow { animation: floatSlow 6s ease-in-out infinite; }
+.float-slow-2 { animation: floatSlow2 7s ease-in-out infinite; }
+.pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+
+.grid-overlay {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 75%);
+}
+
+.hero-image {
+  background-image: url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2400&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+}

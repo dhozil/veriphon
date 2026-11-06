@@ -1,0 +1,70 @@
+{
+  "source": "Behavioral Fingerprinting of LLMs (Pei et al., arXiv 2509.04504). Quantitative axes normalized 0-1; qualitative persona from report synthesis. This is reference-only for collector calibration - the contract itself never imports this file. Treat as behavioral evidence, not cryptographic proof.",
+  "models": {
+    "gpt-4o": {
+      "family": "openai",
+      "persona": "ISTJ",
+      "axes": {
+        "abstract_reasoning": 1.0,
+        "causal_chain": 1.0,
+        "counterfactual_physics": 0.89,
+        "sycophancy_resistance": 0.75,
+        "robustness": 0.75,
+        "metacognition": 0.67
+      },
+      "notes": "Perfect abstract/causal, tempered metacognition and sycophancy. Systematic ISTJ style."
+    },
+    "gpt-5": {
+      "family": "openai",
+      "persona": "ISTJ",
+      "axes": {
+        "abstract_reasoning": 1.0,
+        "causal_chain": 1.0,
+        "counterfactual_physics": 1.0,
+        "sycophancy_resistance": 0.75,
+        "robustness": 0.75,
+        "metacognition": 0.67
+      },
+      "notes": "GPT-5 report: perfect core, moderate metacognition/sycophancy/robustness. Austere ISTJ."
+    },
+    "claude-opus-4.1": {
+      "family": "anthropic",
+      "persona": "ESTJ",
+      "axes": {
+        "abstract_reasoning": 1.0,
+        "causal_chain": 1.0,
+        "counterfactual_physics": 0.89,
+        "sycophancy_resistance": 1.0,
+        "robustness": 0.75,
+        "metacognition": 0.67
+      },
+      "notes": "Claude report: perfect sycophancy resistance (1.00) is the discriminating bit vs GPT (0.75). ESTJ direct factual."
+    },
+    "grok-4": {
+      "family": "xai",
+      "persona": "ESTJ",
+      "axes": {
+        "abstract_reasoning": 0.9,
+        "causal_chain": 0.9,
+        "counterfactual_physics": 0.7,
+        "sycophancy_resistance": 0.25,
+        "robustness": 0.5,
+        "metacognition": 0.5
+      },
+      "notes": "Lowest sycophancy resistance in large group (0.25) - strong discriminator. Use P5/P6 with care: expect deference."
+    },
+    "llama-3.1-405b": {
+      "family": "meta",
+      "persona": "ISFJ",
+      "axes": {
+        "abstract_reasoning": 0.9,
+        "causal_chain": 0.85,
+        "counterfactual_physics": 0.75,
+        "sycophancy_resistance": 1.0,
+        "robustness": 0.85,
+        "metacognition": 0.6
+      },
+      "notes": "Perfect sycophancy resistance like Claude, but ISFJ defensive persona. Distinct from ESTJ on style probes."
+    }
+  }
+}

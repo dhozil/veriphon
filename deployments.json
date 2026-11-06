@@ -1,0 +1,68 @@
+{
+  "deployments": [
+    {
+      "address": "0x9D217b1d1c7AbCB18deA200764c3707437261153",
+      "version": "v0.4.1",
+      "network": "studionet",
+      "deployer": "0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0",
+      "contract": "contracts/model_fingerprint_verifier.py",
+      "note": "v0.4.1 = v0.4 + FULL REBRAND TO VERIPHON: contract class renamed ModelFingerprintVerifier -> Veriphon (storage layout unchanged; lint reports contract=Veriphon, 26 methods), comment header updated, docs/frontend/package all Veriphon (logo AudioLines, title 'Veriphon - The truth layer for agentic commerce'). Deployed by scripts/deploy_v04.py (deploy tx 0xeb8d26eae5411c42869c9917fb9a9c7f1132cdc20ab8ec67a4f9762d2db33bdf); library committed REAL sha256 ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2 (tx 0xad29562..., v1); references gpt-4o/gpt-5/claude-opus-4.1/grok-4/llama-3.1-405b all found=True. On-chain smoke A MATCH path passed (register 0x0d33..., verify 0xb748... -> task RELEASED atomically, is_verified=True). On-chain smoke B appeal path passed (settle_task INCONCLUSIVE -> appeal_verdict bond 1000 -> resolve_appeal MATCH -> task RELEASED, appeal RESOLVED). Demo att-1 seeded: VERIFIED MATCH 100, confidence high, is_verified=True. Demo state completed 2026-11-06: set_agent_identity tx 0xd8a0... (bound on-chain, registry 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432, token 1, uri ipfs://veriphon-agent-1) + set_identity_registry tx 0x8012... ; escrow task-1 created tx 0x428f... (payable 1000, bound to att-1, FUNDED, stake locked). Frontend points here. StudioNet is gasless.",
+      "deploy_tx": "0xeb8d26eae5411c42869c9917fb9a9c7f1132cdc20ab8ec67a4f9762d2db33bdf",
+      "library_commit_tx": "0xad295624ef54fe41ac3bfdeb12971aa5531dfc73c89522e2f22541df86a6b802",
+      "reference_commit_txs": {
+        "gpt-4o": "0x5f0e1b5a5d32b8e750233f2298e89f4c498de16d817eea459386a255413065a5",
+        "gpt-5": "0xa04ccabd736bfd24db3c8bea9b8af7f82e9dfb4ed924153adebb9035f960a9ef",
+        "claude-opus-4.1": "0x118643099572c02aaf168e25dc29d4fbc199c355d3d0c7fb64dedd7bf0efbf54",
+        "grok-4": "0xd49bab5d0a57be45a70df942a507534b7a8f0ea0692fe897e71cb3e15cdfb227",
+        "llama-3.1-405b": "0x454aad5cc8be7b2e637eb6a391a18de956e05032da88495e266ab23dc626f98c"
+      },
+      "reference_fingerprints_sha256": "ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2"
+    },
+    {
+      "address": "0xaB038f02268AdC004c4bD52d954aFc1132eD3f52",
+      "version": "v0.4",
+      "network": "studionet",
+      "deployer": "0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0",
+      "contract": "contracts/model_fingerprint_verifier.py",
+      "note": "SUPERSEDED by v0.4.1 (Veriphon rebrand). Same features as v0.4.1: grounded judge (no verdict without on-chain reference), per-probe quote+axis evidence_detail, sanitizer, fail-closed. Deploy tx 0x1cbe24e812aef83d5bd2a88250be0a14c7137128a4d755c7528a83e96cce5102. Library committed sha256 ea24f643... (tx 0xc611..., v1). On-chain smoke A MATCH passed; att-1 seeded: VERIFIED MATCH 100, confidence high, is_verified=True.",
+      "deploy_tx": "0x1cbe24e812aef83d5bd2a88250be0a14c7137128a4d755c7528a83e96cce5102",
+      "library_commit_tx": "0xc611936ed286ded5f5edd5ef716b7bee82f53769fadf0e0c38ee77914477f4ee",
+      "reference_fingerprints_sha256": "ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2"
+    },
+    {
+      "address": "0x1b10FD31174A5756A7A62a7Ba8Bd866865FD2713",
+      "version": "v0.3.1",
+      "network": "studionet",
+      "deployer": "0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0",
+      "contract": "contracts/model_fingerprint_verifier.py",
+      "note": "SUPERSEDED by v0.4/v0.4.1. v0.3.1 = v0.3 + adversarial fixes. Deploy tx 0x92dc6c0a71b6025009a6127712d923b4afbad7c46faeedffb372386354f3203b. Library sha256 ea24f643... (tx 0x69defd..., v1). On-chain smokes: MATCH path (atomic settle) and appeal path (INCONCLUSIVE -> appeal -> resolve_appeal MATCH, task RELEASED, balance 2000->0).",
+      "deploy_tx": "0x92dc6c0a71b6025009a6127712d923b4afbad7c46faeedffb372386354f3203b",
+      "library_commit_tx": "0x69defd8e48412a76f4335a64b1bf09396a9b702c269b1146b11f1b9207df9419"
+    },
+    {
+      "address": "0xC4AA610343B246986dFFD0a161FAB51d143d0f20",
+      "version": "v0.3",
+      "network": "studionet",
+      "deployer": "0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0",
+      "contract": "contracts/model_fingerprint_verifier.py",
+      "note": "SUPERSEDED by v0.3.1+. v0.3 E2E: 6/7 first run (transient 502), re-run passed; full re-run 7/7 (527.78s) on a throwaway deploy.",
+      "integration_run": {
+        "suite": "tests/integration/test_v03_e2e.py",
+        "total": 7
+      }
+    },
+    {
+      "address": "0xF8D1743BA4C62f8ddad7835B78985B399Ee26819",
+      "version": "v0.2",
+      "network": "studionet",
+      "deployer": "0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0",
+      "contract": "contracts/model_fingerprint_verifier.py",
+      "note": "v0.2 single contract (verifier + escrow, atomic settle). SUPERSEDED. v0.1 (0xd4CDd376eB376CdFd617c38Cb4c8E7ade00BdaeC) superseded.",
+      "integration_run": {
+        "suite": "tests/integration/test_escrow_e2e.py",
+        "passed": 7,
+        "total": 7
+      }
+    }
+  ]
+}

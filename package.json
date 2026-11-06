@@ -1,0 +1,14 @@
+{
+  "name": "model-fingerprinting-verifiers",
+  "version": "1.0.0",
+  "description": "**Agentic Commerce Infrastructure** — *Prove which model an agent is actually running.*",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

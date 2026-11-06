@@ -1,0 +1,29 @@
+# Secrets - never commit
+.env
+.env.studionet
+.env.local
+.env.*.local
+frontend/.env.local
+
+# Python
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+
+# Node / frontend
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/tsconfig.tsbuildinfo
+frontend/*.tsbuildinfo
+*.tsbuildinfo
+
+# GenLayer
+artifacts/
+
+# Tooling / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
