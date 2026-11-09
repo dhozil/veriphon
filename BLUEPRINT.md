@@ -131,7 +131,7 @@ Methods:
 - **v0.2:** single contract (escrow + verifier), atomic settle in the verdict transaction. ✅
 - **v0.3:** appeal-reversal for escrow + INCONCLUSIVE manual review + ERC-8004 identity binding + reference fingerprint library commitment (sha256, versioned). ✅
 - **v0.3.1:** adversarial-review fixes (zero-stake settle, Address coercion, ASCII-only source). ✅
-- **v0.4 / v0.4.1:** grounded judge (no verdict without on-chain reference ground truth; auditable per-probe quotes + axes; fail-closed without reference) + full rebrand to **Veriphon** (canonical v0.4.1 = `0x9D217b1d1c7AbCB18deA200764c3707437261153`). ✅
+- **v0.4 / v0.4.1:** grounded judge (no verdict without on-chain reference ground truth; auditable per-probe quotes + axes; fail-closed without reference) + full rebrand to **Veriphon** (canonical v0.4.1 = `0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F`). ✅
 - **v1.0:** public probe bank, cross-agent reputation, public dashboard.
 
 ## 9. References used
@@ -148,3 +148,4 @@ Methods:
 2. **Where does the probe bank come from?** → built from public research (Pei et al.); calibrated in `collector/docs/calibration.md`; owner commits + versions it on-chain.
 3. **Does the verdict directly gate escrow in v1?** → yes — since v0.2, the verdict settles escrow atomically in the same transaction (MATCH → release, MISMATCH → 80/20 slash, INCONCLUSIVE → hold + appeal-reversal).
 4. **Deploy target?** → StudioNet (gasless, chain 61999) for now; Bradbury testnet next; the deploy decision is recorded in `deployments.json`.
+

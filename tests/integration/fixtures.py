@@ -68,3 +68,23 @@ GPT4O_REFERENCE = json.dumps(
     },
     sort_keys=True,
 )
+
+
+def bound_transcript(transcript_text, challenge_nonce, endpoint_commitment_hash, agent_id=None):
+    """Embed the per-attestation source binding into a transcript payload.
+
+    The contract requires challenge_nonce + endpoint_commitment_hash to be
+    part of the hashed transcript itself; replaying this payload against a
+    different attestation fails because the challenge nonce changes. Each
+    response must also echo the nonce, representing the challenge response.
+    """
+    data = json.loads(transcript_text)
+    if agent_id is not None:
+        data["agent_id"] = agent_id
+    data["challenge_nonce"] = challenge_nonce
+    data["endpoint_commitment_hash"] = endpoint_commitment_hash
+    for item in data.get("responses", []):
+        response = item.get("response", "")
+        if challenge_nonce not in response:
+            item["response"] = f"{challenge_nonce}\n{response}" if response else challenge_nonce
+    return json.dumps(data, sort_keys=True)

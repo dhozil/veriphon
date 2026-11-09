@@ -5,7 +5,7 @@ direct mode exercises the deterministic state machine and storage layout.
 """
 
 import json
-from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE
+from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE, bound_transcript, valid_judge_payload
 
 
 def _deploy(direct_deploy):
@@ -17,10 +17,12 @@ def _deploy(direct_deploy):
 def _make_inconclusive(c, direct_vm, att_id="att-1"):
     c.register_agent("agent-1", "gpt-4o", "2024-11-20", "endpoint-hash-1")
     c.request_attestation(att_id, "agent-1")
-    c.submit_transcript(att_id, TRANSCRIPT, sha256_hex(TRANSCRIPT))
+    challenge = c.get_challenge(att_id)
+    bound = bound_transcript(TRANSCRIPT, challenge["challenge_nonce"], challenge["endpoint_commitment_hash"])
+    c.submit_transcript(att_id, bound, sha256_hex(bound))
     # Critical probes pass; advisory P3/P4 false -> score 50 < min_match 75 -> INCONCLUSIVE
-    direct_vm.mock_llm(r"model-fingerprinting judge", json.dumps({"bits": [True, True, False, False]}))
-    verdict = c.verify_fingerprint(att_id, TRANSCRIPT)
+    direct_vm.mock_llm(r"model-fingerprinting judge", json.dumps(valid_judge_payload([True, True, False, False])))
+    verdict = c.verify_fingerprint(att_id, bound)
     assert verdict == "INCONCLUSIVE"
 
 

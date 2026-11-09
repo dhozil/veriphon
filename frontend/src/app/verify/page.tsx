@@ -8,6 +8,7 @@ import {
   useAgent,
   useAgentIdentity,
   useAttestation,
+  useChallenge,
   useIsVerified,
   useProbeBank,
   useWrite,
@@ -35,10 +36,32 @@ export default function VerifyPage() {
   const agent = useAgent(DEMO_AGENT_ID);
   const identity = useAgentIdentity(DEMO_AGENT_ID);
   const att = useAttestation(DEMO_ATTESTATION_ID);
+  const challenge = useChallenge(DEMO_ATTESTATION_ID);
   const verified = useIsVerified(DEMO_AGENT_ID, "gpt-4o");
   const wr = useWrite();
 
   const [transcript, setTranscript] = React.useState(DEMO_TRANSCRIPT);
+  const [bindError, setBindError] = React.useState<string | null>(null);
+
+  function buildBoundTranscript(raw: string): string {
+    if (!challenge.data) throw new Error("Source challenge has not loaded yet. Reload the challenge card before submitting.");
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const responses = Array.isArray(parsed.responses) ? parsed.responses : [];
+    const nonce = challenge.data.challenge_nonce;
+    const next = {
+      ...parsed,
+      agent_id: DEMO_AGENT_ID,
+      challenge_nonce: nonce,
+      endpoint_commitment_hash: challenge.data.endpoint_commitment_hash,
+      responses: responses.map((item) => {
+        if (!item || typeof item !== "object") return item;
+        const row = item as Record<string, unknown>;
+        const response = typeof row.response === "string" ? row.response : "";
+        return response.includes(nonce) ? row : { ...row, response: response ? `${nonce}\n${response}` : nonce };
+      }),
+    };
+    return JSON.stringify(next, null, 2);
+  }
 
   async function onRegister() {
     await wr.write("register_agent", [
@@ -51,18 +74,38 @@ export default function VerifyPage() {
   }
 
   async function onRequest() {
+    setBindError(null);
     await wr.write("request_attestation", [DEMO_ATTESTATION_ID, DEMO_AGENT_ID]);
     att.reload();
+    challenge.reload();
   }
 
   async function onSubmit() {
-    const hash = await sha256HexAsync(transcript);
-    await wr.write("submit_transcript", [DEMO_ATTESTATION_ID, transcript, hash]);
+    let bound: string;
+    try {
+      setBindError(null);
+      bound = buildBoundTranscript(transcript);
+    } catch (e) {
+      setBindError(e instanceof Error ? e.message : String(e));
+      return;
+    }
+    setTranscript(bound);
+    const hash = await sha256HexAsync(bound);
+    await wr.write("submit_transcript", [DEMO_ATTESTATION_ID, bound, hash]);
     att.reload();
   }
 
   async function onVerify() {
-    await wr.write("verify_fingerprint", [DEMO_ATTESTATION_ID, transcript]);
+    let bound: string;
+    try {
+      setBindError(null);
+      bound = buildBoundTranscript(transcript);
+    } catch (e) {
+      setBindError(e instanceof Error ? e.message : String(e));
+      return;
+    }
+    setTranscript(bound);
+    await wr.write("verify_fingerprint", [DEMO_ATTESTATION_ID, bound]);
     att.reload();
     verified.reload();
   }
@@ -156,6 +199,30 @@ export default function VerifyPage() {
               </Card>
             </motion.div>
 
+            <motion.div initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.13 }}>
+              <Card title="Source-bound challenge (live)" action={<ReloadBtn onClick={challenge.reload} />}>
+                {challenge.status === "loading" && <LoadingRow />}
+                {challenge.status === "error" && <ErrorRow msg={challenge.error} />}
+                {challenge.status === "success" && challenge.data && (
+                  <>
+                    <p className="text-sm">
+                      {challenge.data.challenge_status === "VERIFIED" ? (
+                        <span className="font-semibold text-emerald-400">Verified from this challenge</span>
+                      ) : (
+                        <span className="font-semibold text-indigo-300">Challenge {challenge.data.challenge_status}</span>
+                      )}
+                    </p>
+                    <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                      <Field k="challenge_nonce" v={truncate(challenge.data.challenge_nonce)} mono />
+                      <Field k="challenge_hash" v={truncate(challenge.data.challenge_hash)} mono />
+                      <Field k="endpoint_commitment" v={truncate(challenge.data.endpoint_commitment_hash)} mono />
+                      <Field k="selected_probes" v={challenge.data.challenge_probe_ids || "-"} mono />
+                    </dl>
+                  </>
+                )}
+              </Card>
+            </motion.div>
+
             <motion.div initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.16 }}>
               <Card title="AI consensus verdict (live)" action={<ReloadBtn onClick={att.reload} />}>
                 {att.status === "loading" && <LoadingRow />}
@@ -213,6 +280,14 @@ export default function VerifyPage() {
                     Verify fingerprint
                   </Button>
                 </div>
+                {bindError && (
+                  <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200" role="alert">
+                    {bindError}{" "}
+                    <button className="underline" onClick={() => setBindError(null)}>
+                      dismiss
+                    </button>
+                  </p>
+                )}
                 {wr.error && (
                   <p className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300" role="alert">
                     {wr.error}{" "}
@@ -233,8 +308,9 @@ export default function VerifyPage() {
                   className="w-full rounded-xl border border-white/10 bg-ink p-3 font-mono text-xs text-slate-200 outline-none transition-colors focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
                 />
                 <p className="mt-2 text-xs text-slate-500">
-                  Submit and verify must use this exact string; its SHA-256 must
-                  match the submitted hash or the contract reverts.
+                  Submit automatically binds this exact string to the current source
+                  challenge and registered endpoint commitment. Verify must use the same
+                  bound string, and its SHA-256 must match the submitted hash or the contract reverts.
                 </p>
               </Card>
             </motion.div>

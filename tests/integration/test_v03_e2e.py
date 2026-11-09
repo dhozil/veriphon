@@ -13,7 +13,7 @@ import pytest
 from gltest import get_contract_factory
 from gltest.assertions import tx_execution_failed, tx_execution_succeeded
 
-from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE
+from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE, bound_transcript
 
 STAKE = 1000
 APPEAL_FEE = 1000
@@ -33,7 +33,14 @@ def verifier():
 def _registered_agent_att(v, att_id: str):
     v.register_agent(args=["agent-1", "gpt-4o", "2024-11-20", "endpoint-hash-1"]).transact()
     v.request_attestation(args=[att_id, "agent-1"]).transact()
-    v.submit_transcript(args=[att_id, TRANSCRIPT, sha256_hex(TRANSCRIPT)]).transact()
+    challenge = v.get_challenge(args=[att_id]).call()
+    bound = bound_transcript(
+        TRANSCRIPT,
+        challenge["challenge_nonce"],
+        challenge["endpoint_commitment_hash"],
+    )
+    v.submit_transcript(args=[att_id, bound, sha256_hex(bound)]).transact()
+    return bound
 
 
 def _funded_held_task(v, task_id: str, att_id: str):

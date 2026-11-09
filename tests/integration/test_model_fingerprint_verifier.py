@@ -13,7 +13,7 @@ import pytest
 from gltest import get_contract_factory
 from gltest.assertions import tx_execution_failed, tx_execution_succeeded
 
-from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE
+from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE, bound_transcript
 
 
 @pytest.fixture(scope="module")
@@ -55,8 +55,14 @@ def test_attestation_lifecycle_and_verify(verifier):
     att = verifier.get_attestation(args=["att-1"]).call()
     assert att["status"] == "PENDING"
 
+    challenge = verifier.get_challenge(args=["att-1"]).call()
+    bound = bound_transcript(
+        TRANSCRIPT,
+        challenge["challenge_nonce"],
+        challenge["endpoint_commitment_hash"],
+    )
     receipt = verifier.submit_transcript(
-        args=["att-1", TRANSCRIPT, sha256_hex(TRANSCRIPT)]
+        args=["att-1", bound, sha256_hex(bound)]
     ).transact()
     assert tx_execution_succeeded(receipt)
 
@@ -64,7 +70,7 @@ def test_attestation_lifecycle_and_verify(verifier):
     assert att["status"] == "SUBMITTED"
 
     # Real LLM consensus: validators judge whether transcript is consistent.
-    receipt = verifier.verify_fingerprint(args=["att-1", TRANSCRIPT]).transact()
+    receipt = verifier.verify_fingerprint(args=["att-1", bound]).transact()
     assert tx_execution_succeeded(receipt)
 
     att = verifier.get_attestation(args=["att-1"]).call()

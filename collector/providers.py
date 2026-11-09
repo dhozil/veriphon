@@ -100,17 +100,36 @@ def call_chat_completions(api_base: str, api_key: str, model: str, prompt: str, 
     raise last_err  # type: ignore[misc]
 
 
-def mock_transcript(agent_id: str, model: str, probes: list) -> dict:
+def build_transcript(agent_id: str, model: str, responses: list, challenge_nonce: str, endpoint_commitment_hash: str) -> dict:
+    return {
+        "agent_id": agent_id,
+        "challenge_nonce": challenge_nonce,
+        "endpoint_commitment_hash": endpoint_commitment_hash,
+        "model": model,
+        "responses": responses,
+    }
+
+
+def wrap_prompt(prompt: str, challenge_nonce: str) -> str:
+    """Make the challenge explicit to the endpoint/model and ask for an echo."""
+    if not challenge_nonce:
+        return prompt
+    return (
+        "Challenge nonce: " + challenge_nonce + "\n"
+        "Your entire response must start with this exact nonce on its own line, then answer the probe.\n\n"
+        + prompt
+    )
+
+
+def mock_transcript(agent_id: str, model: str, probes: list, challenge_nonce: str = "", endpoint_commitment_hash: str = "") -> dict:
     """Deterministic stub so pipeline can be tested with no API key."""
     responses = []
     for p in probes:
-        responses.append(
-            {
-                "probe_id": p["probe_id"],
-                "response": f"[mock:{model}] {p['probe_id']} response for: {p['prompt'][:80]}",
-            }
-        )
-    return {"agent_id": agent_id, "responses": responses, "model": model, "mock": True}
+        text = f"[mock:{model}] {p['probe_id']} response for: {p['prompt'][:80]}"
+        if challenge_nonce and challenge_nonce not in text:
+            text = challenge_nonce + "\n" + text
+        responses.append({"probe_id": p["probe_id"], "response": text})
+    return build_transcript(agent_id, model, responses, challenge_nonce, endpoint_commitment_hash)
 
 
 def cmd_list(_args) -> int:
@@ -141,19 +160,37 @@ def cmd_collect(args) -> int:
     model = args.model
 
     if args.mock:
-        transcript = mock_transcript(args.agent_id, model, probes)
+        transcript = mock_transcript(
+            args.agent_id,
+            model,
+            probes,
+            args.challenge_nonce,
+            args.endpoint_commitment_hash,
+        )
     else:
         display, base, env, key = resolve_provider(args.provider)
         if not key:
             print(f"error: {env} not set (or pass --mock)", file=sys.stderr)
             return 2
+        if not args.challenge_nonce or not args.endpoint_commitment_hash:
+            print(
+                "error: --challenge-nonce and --endpoint-commitment-hash are required for source-bound collection",
+                file=sys.stderr,
+            )
+            return 2
         print(f"collecting {len(probes)} probes from {display} model={model}...", file=sys.stderr)
         responses = []
         for p in probes:
-            text = call_chat_completions(base, key, model, p["prompt"])
+            text = call_chat_completions(base, key, model, wrap_prompt(p["prompt"], args.challenge_nonce))
             responses.append({"probe_id": p["probe_id"], "response": text})
             print(f"  {p['probe_id']}: {len(text)} chars", file=sys.stderr)
-        transcript = {"agent_id": args.agent_id, "responses": responses, "model": model}
+        transcript = build_transcript(
+            args.agent_id,
+            model,
+            responses,
+            args.challenge_nonce,
+            args.endpoint_commitment_hash,
+        )
 
     text = json.dumps(transcript, sort_keys=True)
     import os as _os
@@ -181,6 +218,8 @@ def main() -> int:
     c.add_argument("--provider", default="openai")
     c.add_argument("--model", default="gpt-4o")
     c.add_argument("--agent-id", default="agent-1")
+    c.add_argument("--challenge-nonce", default="", help="Nonce from contract get_challenge; required for real collection")
+    c.add_argument("--endpoint-commitment-hash", default="", help="Registered endpoint commitment; required for real collection")
     c.add_argument("--out", default="transcript.json")
     c.add_argument("--probes", default=DEFAULT_PROBES_PATH)
     c.add_argument("--mock", action="store_true", help="No network, stub responses")

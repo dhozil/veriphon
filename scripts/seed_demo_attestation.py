@@ -1,7 +1,8 @@
-"""Seed a canonical demo attestation (agent-1 / att-1) on the v0.4 contract.
+"""Seed a canonical demo attestation (agent-1 / att-1) on the canonical v0.4.1+ contract.
 
-Registers agent-1 (gpt-4o), opens att-1, submits the shared demo transcript,
-then verifies it with the GROUNDED judge (real validator LLM consensus, bound
+Registers agent-1 (gpt-4o), opens att-1, submits the shared demo transcript
+with its source challenge bound by contract, then verifies it with the
+GROUNDED judge (real validator LLM consensus, bound
 to the on-chain reference fingerprint). The /verify page then renders live
 verdict + grounded rationale (quote + axis per probe).
 
@@ -14,7 +15,7 @@ import time
 import json
 
 sys.path.insert(0, "tests/direct")
-from fixtures import TRANSCRIPT, sha256_hex  # noqa: E402
+from fixtures import TRANSCRIPT, sha256_hex, bound_transcript  # noqa: E402
 
 from dotenv import load_dotenv  # noqa: E402
 
@@ -31,7 +32,7 @@ gc.plugin_config = PluginConfig()
 from gltest.clients import get_gl_client  # noqa: E402
 from genlayer_py.types import TransactionHashVariant  # noqa: E402
 
-CONTRACT = "0x9D217b1d1c7AbCB18deA200764c3707437261153"
+CONTRACT = "0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F"
 AGENT_ID = "agent-1"
 ATT_ID = "att-1"
 
@@ -74,10 +75,19 @@ try:
     print("att-1 exists:", att["status"])
 except Exception:
     write("request_attestation(att-1)", "request_attestation", [ATT_ID, AGENT_ID])
-    write("submit_transcript(att-1)", "submit_transcript", [ATT_ID, TRANSCRIPT, sha256_hex(TRANSCRIPT)])
 
-write("verify_fingerprint(att-1)", "verify_fingerprint", [ATT_ID, TRANSCRIPT])
+challenge = c.read_contract(
+    address=CONTRACT,
+    function_name="get_challenge",
+    args=[ATT_ID],
+    transaction_hash_variant=getattr(TransactionHashVariant, "LATEST_NONFINAL", None),
+)
+bound = bound_transcript(TRANSCRIPT, challenge["challenge_nonce"], challenge["endpoint_commitment_hash"])
+write("submit_transcript(att-1)", "submit_transcript", [ATT_ID, bound, sha256_hex(bound)])
+
+write("verify_fingerprint(att-1)", "verify_fingerprint", [ATT_ID, bound])
 
 print("\n[read] attestation:", json.dumps(read("get_attestation", [ATT_ID]), indent=2))
 print("\n[read] is_verified(agent-1, gpt-4o):", read("is_verified", [AGENT_ID, "gpt-4o"]))
 print("\nDone. /verify on the frontend now shows live att-1 with grounded rationale.")
+

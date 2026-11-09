@@ -58,6 +58,11 @@ export interface Attestation {
   submitted_transcript_hash: string;
   verdict: string;
   evidence_detail?: string; // json: { confidence, evidence: [{probe_id, consistent, quote, axis}] }
+  challenge_nonce?: string;
+  challenge_hash?: string;
+  endpoint_commitment_hash?: string;
+  challenge_probe_ids?: string; // JSON string list
+  challenge_status?: string;
 }
 
 export interface TaskInfo {
@@ -93,6 +98,16 @@ export interface AgentIdentity {
 export interface FingerprintLibrary {
   version: number;
   hash: string;
+}
+
+export interface Challenge {
+  attestation_id: string;
+  challenge_nonce: string;
+  challenge_hash: string;
+  endpoint_commitment_hash: string;
+  challenge_probe_ids: string; // JSON string list
+  challenge_status: string;
+  probe_rubric_hash: string;
 }
 
 const READ_VARIANT: TransactionHashVariant =
@@ -179,6 +194,36 @@ export function useAttestation(attId: string) {
         transactionHashVariant: READ_VARIANT,
       })) as Record<string, unknown>;
       setS(ok(res as unknown as Attestation));
+    } catch (e) {
+      setS(fail(toMessage(e)));
+    }
+  }, [client, attId]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  return { ...s, reload: load };
+}
+
+export function useChallenge(attId: string) {
+  const client = useReadClient();
+  const [s, setS] = React.useState<AsyncState<Challenge>>({
+    status: "idle",
+    data: null,
+    error: null,
+  });
+
+  const load = React.useCallback(async () => {
+    setS(start());
+    try {
+      const res = (await client.readContract({
+        address: CONTRACT_ADDRESS as `0x${string}`,
+        functionName: "get_challenge",
+        args: [attId],
+        transactionHashVariant: READ_VARIANT,
+      })) as Record<string, unknown>;
+      setS(ok(res as unknown as Challenge));
     } catch (e) {
       setS(fail(toMessage(e)));
     }

@@ -1,10 +1,12 @@
 # Transcript Collector
 
 Off-chain collector that calls the agent API with private API keys, then
-produces a transcript JSON + SHA-256 for submission to the contract.
+produces a source-bound transcript JSON + SHA-256 for submission to the contract.
 
 **Boundary (mandatory):** API keys never enter the GenLayer contract.
 The contract only accepts the transcript JSON + its hash (deterministic gate).
+The transcript must also carry the attestation challenge nonce and the registered
+endpoint commitment hash; each response must echo the nonce.
 
 ## Provider adapters (providers.py)
 
@@ -15,8 +17,14 @@ python collector/providers.py list
 python collector/providers.py test --provider openai
 python collector/providers.py collect --provider openai --model gpt-4o \
   --agent-id agent-1 --mock \
+  --challenge-nonce <challenge_nonce from get_challenge> \
+  --endpoint-commitment-hash <registered endpoint_commitment_hash> \
   --out transcripts/gpt-4o.json
 ```
+
+Real (non-mock) collection requires both `--challenge-nonce` and
+`--endpoint-commitment-hash`; the collector presents the nonce in every probe
+prompt and asks the model/endpoint to echo it before answering.
 
 Keys come from the environment (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`).
 `test` only shows SET/missing + length, never prints the key.
@@ -58,6 +66,7 @@ genlayer write <CONTRACT> submit_transcript --args "att-1" '<TRANSCRIPT_JSON>' '
 genlayer write <CONTRACT> verify_fingerprint --args "att-1" '<TRANSCRIPT_JSON>'
 ```
 
-Transcript schema: `{"agent_id": "...", "responses": [{"probe_id": "P1", "response": "..."}, ...]}`.
-The transcript string must be identical at submit and verify time, because the
-contract recomputes the SHA-256 of the content and compares it to the submitted hash.
+Transcript schema: `{"agent_id": "...", "challenge_nonce": "...", "endpoint_commitment_hash": "...", "responses": [{"probe_id": "P1", "response": "..."}, ...]}`.
+Every response must echo `challenge_nonce`. The transcript string must be identical at submit and verify time, because the
+contract recomputes the SHA-256 of the content and compares it to the submitted hash. Replaying the same
+payload against another attestation is rejected because its challenge nonce differs.

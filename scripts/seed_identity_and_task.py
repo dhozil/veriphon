@@ -28,7 +28,7 @@ gc.plugin_config = PluginConfig()
 from gltest.clients import get_gl_client  # noqa: E402
 from genlayer_py.types import TransactionHashVariant  # noqa: E402
 
-CONTRACT = "0x9D217b1d1c7AbCB18deA200764c3707437261153"
+CONTRACT = "0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F"
 REGISTRY = "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"  # ERC-8004 identity registry (conventional)
 TOKEN_ID = "1"
 AGENT_URI = "ipfs://veriphon-agent-1"
@@ -79,3 +79,4 @@ except Exception:
 
 print("\n[read] balance_info:", json.dumps(read("get_balance_info", []), indent=2))
 print("\nDone.")
+

@@ -14,7 +14,7 @@ import pytest
 from gltest import get_contract_factory
 from gltest.assertions import tx_execution_failed, tx_execution_succeeded
 
-from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE
+from fixtures import RUBRIC, TRANSCRIPT, sha256_hex, GPT4O_REFERENCE, bound_transcript
 
 STAKE = 1000  # atto-GEN (testnet-scale units)
 AGENT_PAY = "0x99bF44395CaC814E671ADFF8b69d968Fac4e5Db3"  # seller.json wallet
@@ -30,7 +30,14 @@ def verifier():
 def _registered_agent_att(v, att_id: str):
     v.register_agent(args=["agent-1", "gpt-4o", "2024-11-20", "endpoint-hash-1"]).transact()
     v.request_attestation(args=[att_id, "agent-1"]).transact()
-    v.submit_transcript(args=[att_id, TRANSCRIPT, sha256_hex(TRANSCRIPT)]).transact()
+    challenge = v.get_challenge(args=[att_id]).call()
+    bound = bound_transcript(
+        TRANSCRIPT,
+        challenge["challenge_nonce"],
+        challenge["endpoint_commitment_hash"],
+    )
+    v.submit_transcript(args=[att_id, bound, sha256_hex(bound)]).transact()
+    return bound
 
 
 def test_create_task_and_release_match(verifier):
@@ -136,7 +143,7 @@ def test_set_min_stake_blocks_underfunded(verifier):
 @pytest.mark.slow
 def test_verify_auto_settles_task_atomically(verifier):
     att_id = "att-e2e-7"
-    _registered_agent_att(verifier, att_id)
+    bound = _registered_agent_att(verifier, att_id)
 
     receipt = verifier.create_task(
         args=["task-7", "agent-1", att_id, AGENT_PAY]
@@ -144,7 +151,7 @@ def test_verify_auto_settles_task_atomically(verifier):
     assert tx_execution_succeeded(receipt)
 
     # Full LLM consensus: this transaction persists verdict AND settles the task
-    receipt = verifier.verify_fingerprint(args=[att_id, TRANSCRIPT]).transact()
+    receipt = verifier.verify_fingerprint(args=[att_id, bound]).transact()
     assert tx_execution_succeeded(receipt)
 
     att = verifier.get_attestation(args=[att_id]).call()

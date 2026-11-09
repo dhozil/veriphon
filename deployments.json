@@ -1,6 +1,24 @@
 {
   "deployments": [
     {
+      "address": "0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F",
+      "version": "v0.5",
+      "network": "studionet",
+      "deployer": "0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0",
+      "contract": "contracts/model_fingerprint_verifier.py",
+      "note": "v0.5: source-bound challenge-response + endpoint commitment enforcement + strict evidence validation. Each attestation issues a per-attestation challenge nonce/hash, endpoint snapshot and exact selected probes; submitted transcripts must bind agent/challenge/endpoint and echo the nonce; validators check entry order, probe IDs, verbatim per-probe quotes, axes against the selected reference, consistent flags, and derived verdict/score. Deployed by scripts/deploy_v04.py (canonical deployment script; deploy tx 0x04ad4bc1ce745d0aed55be28da33ec87b6d03d37b90dda922c4140d50c666087); library committed REAL sha256 ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2 (tx 0x3ef34c63f3b3bf9f4ed74e6322b42b88006bd77e02ae8cfc6f710e98735e4f2a, v1); references gpt-4o/gpt-5/claude-opus-4.1/grok-4/llama-3.1-405b all found=True. Integration suites on this source: 21/21 passed (984.55s). Frontend points here. StudioNet is gasless.",
+      "deploy_tx": "0x04ad4bc1ce745d0aed55be28da33ec87b6d03d37b90dda922c4140d50c666087",
+      "library_commit_tx": "0x3ef34c63f3b3bf9f4ed74e6322b42b88006bd77e02ae8cfc6f710e98735e4f2a",
+      "reference_commit_txs": {
+        "gpt-4o": "0xd982738ed2a4aa5adaa13c28bc77379df0899c4c834e80a4c42e99fa6d44ff51",
+        "gpt-5": "0x3b5ec72758cdf9c49d09008b0b91bef709d457d760dcb3437a08104e4a9e565b",
+        "claude-opus-4.1": "0xa9fa557dc9ca27fc2ef1757d748ad4d671209d430caeafd82a9ec668f48f9b34",
+        "grok-4": "0x4d2747124160173ac443ff2ad73e7eda757bf4a43d03e3fdc135164f73b8b868",
+        "llama-3.1-405b": "0x5fa88579e74a329ed92657de3adb8f2614c28cdb9202ac28e72fbdbb846a3626"
+      },
+      "reference_fingerprints_sha256": "ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2"
+    },
+    {
       "address": "0x9D217b1d1c7AbCB18deA200764c3707437261153",
       "version": "v0.4.1",
       "network": "studionet",
@@ -66,3 +84,4 @@
     }
   ]
 }
+

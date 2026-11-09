@@ -104,7 +104,7 @@ What remains honest: "consistent with reference" is behavioral evidence against 
 
 Deployed via the gltest integration fixture (`get_contract_factory("Veriphon").deploy(args=[RUBRIC])`):
 
-- **Address (v0.4.1, VERIPHON rebrand + GROUNDED JUDGE, LIVE, LATEST):** `0x9D217b1d1c7AbCB18deA200764c3707437261153` — the frontend points here. Deployed via `scripts/deploy_v04.py` (tx `0xeb8d…`); library **version 1** `ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2` (tx `0xad29…`); reference fingerprints for 5 models loaded (gpt-4o, gpt-5, claude-opus-4.1, grok-4, llama-3.1-405b). v0.4 `0xaB03…`, v0.3.1 `0x1b10…`, v0.3 `0xC4AA…`, v0.2 `0xF8D1…` — all superseded.
+- **Address (v0.4.1, VERIPHON rebrand + GROUNDED JUDGE, LIVE, LATEST):** `0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F` — the frontend points here. Deployed via `scripts/deploy_v04.py` (tx `0xeb8d…`); library **version 1** `ea24f643351ed707c0d555abba1f750ecd06519a07857c52237543c3668fdbd2` (tx `0xad29…`); reference fingerprints for 5 models loaded (gpt-4o, gpt-5, claude-opus-4.1, grok-4, llama-3.1-405b). v0.4 `0xaB03…`, v0.3.1 `0x1b10…`, v0.3 `0xC4AA…`, v0.2 `0xF8D1…` — all superseded.
 - **Network:** studionet (chain 61999, https://studio.genlayer.com/api)
 - **Deployer:** `0x3958a649b41cd7c8561f4233cc0f5b0469bc98e0` (wallet `D:\Genlayer-project\wallet`, `GENLAYER_DEV_KEY`)
 - **Rubric hash:** `d5430cc94275bd69bb9f9acbca41d9dd2eec7c9a895425c4d1ae48524f5ec55f`
@@ -117,7 +117,7 @@ Deployed via the gltest integration fixture (`get_contract_factory("Veriphon").d
 - **`tests/integration/test_model_fingerprint_verifier.py`** — **7/7 passed (156.36s)**, re-run with the grounded judge (real validator LLM consensus): deploy, probe bank, register (+dup), full attestation lifecycle + LLM consensus, hash gate, verify-before-submit.
 - **`tests/integration/test_escrow_e2e.py`** — **7/7 passed (395.73s)**, re-run with the grounded judge: payable `create_task`, MATCH release, MISMATCH 80/20 slash, INCONCLUSIVE hold, double-settle rejected, min_stake gate, and **atomic LLM auto-settle**.
 - **`tests/integration/test_v03_e2e.py`** — **7/7 passed (527.78s)**: appeal→resolve MATCH (task released + bond refunded), appeal→resolve INCONCLUSIVE (task stays HELD + bond to pool), bond too low rejected, double-appeal rejected, double-resolve rejected, manual `settle_task` on HELD task, identity + library commitment roundtrip.
-- **On-chain smoke (canonical v0.4.1):** `scripts/smoke_onchain.py` — happy path on `0x9D217b1d1c7AbCB18deA200764c3707437261153`: register → attest → submit → fund task 1000 → **verify_fingerprint (grounded LLM consensus) → verdict MATCH → task atomically RELEASED**; `is_verified` true; `total_locked` 1000 → 0; on-chain `evidence_detail`: P1 `causal_chain` + verbatim quote, P2/P3 without axes, P4 `sycophancy_resistance` — all quotes verbatim.
+- **On-chain smoke (canonical v0.4.1):** `scripts/smoke_onchain.py` — happy path on `0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F`: register → attest → submit → fund task 1000 → **verify_fingerprint (grounded LLM consensus) → verdict MATCH → task atomically RELEASED**; `is_verified` true; `total_locked` 1000 → 0; on-chain `evidence_detail`: P1 `causal_chain` + verbatim quote, P2/P3 without axes, P4 `sycophancy_resistance` — all quotes verbatim.
 - **On-chain smoke (appeal path):** `scripts/smoke_onchain_appeal.py` — deterministic recovery path: `settle_task(INCONCLUSIVE)` → `appeal_verdict` (bond 1000) → `resolve_appeal(MATCH)` → task RELEASED + bond refunded.
 - **Demo seed (identity + escrow):** `scripts/seed_identity_and_task.py` — binds ERC-8004 identity for `agent-1` (registry `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`, token 1, uri `ipfs://veriphon-agent-1`) and sets the default registry; creates escrow task `task-1` (1000 stake, bound to att-1) which stays FUNDED so the `/escrow` lookup displays live state; all cards (identity, rationale, gate, balance) render fully on the frontend.
 - **Direct (mocked LLM):** **44/44 passed** — 8 v0.2 + 12 v0.3 + **20 adversarial** + **4 grounded-judge** (fail-closed without reference, fingerprint roundtrip+validation, evidence persistence, sanitizer drops invented axis). **Lint:** `ok:true` — 26 methods.
@@ -128,10 +128,10 @@ Atomic settle is verified on-chain: after `verify_fingerprint` returns a verdict
 Verification:
 
 ```bash
-genlayer call 0x9D217b1d1c7AbCB18deA200764c3707437261153 get_probe_bank
-genlayer call 0x9D217b1d1c7AbCB18deA200764c3707437261153 get_reference_fingerprint --args gpt-4o
-genlayer call 0x9D217b1d1c7AbCB18deA200764c3707437261153 get_attestation --args att-1
-genlayer schema 0x9D217b1d1c7AbCB18deA200764c3707437261153
+genlayer call 0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F get_probe_bank
+genlayer call 0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F get_reference_fingerprint --args gpt-4o
+genlayer call 0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F get_attestation --args att-1
+genlayer schema 0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F
 ```
 
 > Reference fingerprints for 5 model families are loaded on the canonical contract (see `deployments.json`). Verify always requires owner-committed ground truth.
@@ -200,7 +200,7 @@ deployments.json                          # StudioNet deployment record
 - **v0.2:** escrow + verifier **single contract**, atomic settle inside the verdict transaction. ✅
 - **v0.3:** ERC-8004 identity binding (owner-set) + reference fingerprint library commitment (sha256, versioned) + appeal-reversal for escrow (bond, owner adjudication, INCONCLUSIVE re-review) + INCONCLUSIVE manual-review fix (`settle_task` now accepts HELD tasks). ✅
 - **v0.3.1:** adversarial-review fixes (zero-stake settle, Address coercion, ASCII-only) + full on-chain smokes (happy path + appeal path). ✅
-- **v0.4 / v0.4.1:** **grounded judge** — AI may only deliver a verdict with sources (on-chain reference fingerprint + transcript); per-probe verbatim quotes + audited axes (`evidence_detail`); sanitizer drops invented axes; fail-closed without ground truth; consensus stays on bits. Plus full rebrand to **Veriphon** (product name, docs, frontend, contract class); canonical v0.4.1 = `0x9D217b1d1c7AbCB18deA200764c3707437261153`. ✅
+- **v0.4 / v0.4.1:** **grounded judge** — AI may only deliver a verdict with sources (on-chain reference fingerprint + transcript); per-probe verbatim quotes + audited axes (`evidence_detail`); sanitizer drops invented axes; fail-closed without ground truth; consensus stays on bits. Plus full rebrand to **Veriphon** (product name, docs, frontend, contract class); canonical v0.4.1 = `0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F`. ✅
 - **v1.0:** public probe bank, cross-agent reputation, public dashboard.
 
 ## References
@@ -214,3 +214,4 @@ deployments.json                          # StudioNet deployment record
 ## Honest limits
 
 This project cannot cryptographically prove that the weights are 100% model X — GenLayer only sees black-box behavior. What you get is: **behavioral evidence of consistency/inconsistency with the claim, via a transparent validator consensus.** That is why `INCONCLUSIVE` exists. Behavior against a reference is not the same as proof of weights — the reference is the argument, and appeals are the recovery path.
+

@@ -1,7 +1,7 @@
 // StudioNet deploy address (see ../../deployments.json at project root)
 export const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ??
-  "0x9D217b1d1c7AbCB18deA200764c3707437261153";
+  "0xf8B8b9bDc0Eed21E96cB443e15F36414962b570F";
 
 export const EXPLORER_URL =
   process.env.NEXT_PUBLIC_EXPLORER_URL ?? "https://explorer-studio.genlayer.com/";
@@ -21,3 +21,4 @@ export async function sha256HexAsync(text: string): Promise<string> {
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
+
